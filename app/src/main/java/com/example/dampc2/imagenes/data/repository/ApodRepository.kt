@@ -24,6 +24,11 @@ class ApodRepository(
     val imagenesFlow: Flow<List<ApodEntity>> = apodDao.getApodImagesFlow()
 
     /**
+     * Obtiene una imagen por su fecha desde la base de datos local Room.
+     */
+    fun getApodByDate(date: String): Flow<ApodEntity?> = apodDao.getApodByDateFlow(date)
+
+    /**
      * Consulta la API de la NASA para los últimos 7 días (desde hace 6 días hasta hoy),
      * realiza la conversión explícita DTO -> Entity y almacena los datos en Room.
      */

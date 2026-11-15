@@ -5,25 +5,26 @@ import com.google.gson.annotations.SerializedName
 
 /**
  * Modelo de transferencia de datos (DTO) devuelto por la API APOD de la NASA.
- * Todos los campos son opcionales para evitar cierres ante datos incompletos.
+ * Utiliza alternancia de nombres en @SerializedName para extraer el campo 'explanation'
+ * tanto si la API responde con minúscula ("explanation") o mayúscula ("Explanation").
  */
 data class ApodDto(
-    @SerializedName("date")
+    @SerializedName(value = "date", alternate = ["Date"])
     val date: String? = null,
 
-    @SerializedName("title")
+    @SerializedName(value = "title", alternate = ["Title"])
     val title: String? = null,
 
-    @SerializedName("explanation")
+    @SerializedName(value = "explanation", alternate = ["Explanation"])
     val explanation: String? = null,
 
-    @SerializedName("media_type")
+    @SerializedName(value = "media_type", alternate = ["mediaType", "Media_Type"])
     val mediaType: String? = null,
 
-    @SerializedName("hdurl")
+    @SerializedName(value = "hdurl", alternate = ["hdUrl", "HDUrl"])
     val hdurl: String? = null,
 
-    @SerializedName("credit")
+    @SerializedName(value = "credit", alternate = ["Credit"])
     val credit: String? = null
 )
 

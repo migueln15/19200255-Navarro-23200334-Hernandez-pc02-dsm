@@ -56,7 +56,10 @@ import com.example.dampc2.imagenes.data.local.ApodEntity
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ImagenesScreen(viewModel: ImagenesViewModel) {
+fun ImagenesScreen(
+    viewModel: ImagenesViewModel,
+    onApodClick: (ApodEntity) -> Unit = {}
+) {
     val uiState by viewModel.uiState.collectAsState()
 
     Scaffold(
@@ -151,7 +154,10 @@ fun ImagenesScreen(viewModel: ImagenesViewModel) {
                                 items = state.imagenes,
                                 key = { it.date }
                             ) { apod ->
-                                ApodCard(apod = apod)
+                                ApodCard(
+                                    apod = apod,
+                                    onApodClick = onApodClick
+                                )
                             }
                         }
                     }
@@ -162,12 +168,17 @@ fun ImagenesScreen(viewModel: ImagenesViewModel) {
 }
 
 @Composable
-fun ApodCard(apod: ApodEntity) {
+fun ApodCard(
+    apod: ApodEntity,
+    onApodClick: (ApodEntity) -> Unit = {}
+) {
     var expandido by remember { mutableStateOf(false) }
     val esVideo = apod.mediaType.equals("video", ignoreCase = true)
 
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onApodClick(apod) },
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
     ) {

@@ -15,6 +15,9 @@ interface ApodDao {
     @Query("SELECT * FROM imagenes ORDER BY date DESC")
     fun getApodImagesFlow(): Flow<List<ApodEntity>>
 
+    @Query("SELECT * FROM imagenes WHERE date = :date LIMIT 1")
+    fun getApodByDateFlow(date: String): Flow<ApodEntity?>
+
     @Query("SELECT * FROM imagenes ORDER BY date DESC")
     suspend fun getApodImages(): List<ApodEntity>
 

@@ -4,7 +4,9 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.dampc2.data.local.AppDatabase
+import com.example.dampc2.imagenes.data.local.ApodEntity
 import com.example.dampc2.imagenes.data.repository.ApodRepository
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -37,6 +39,10 @@ class ImagenesViewModel(application: Application) : AndroidViewModel(application
 
         // 2. Cargar/Refrescar desde la API y guardar en Room
         cargarImagenes()
+    }
+
+    fun getApodByDate(date: String): Flow<ApodEntity?> {
+        return repository.getApodByDate(date)
     }
 
     fun cargarImagenes() {
