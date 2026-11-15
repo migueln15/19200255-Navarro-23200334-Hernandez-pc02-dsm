@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -18,11 +19,30 @@ fun AsteroideItem(asteroide: AsteroideEntity, modifier: Modifier = Modifier) {
     Card(modifier = modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(text = asteroide.nombre, style = MaterialTheme.typography.titleMedium)
+            if (asteroide.esPeligroso) {
+                Spacer(modifier = Modifier.height(4.dp))
+                EtiquetaPeligroso()
+            }
             Spacer(modifier = Modifier.height(8.dp))
             Text(text = "Fecha de aproximación: ${asteroide.fechaAproximacion ?: "Sin dato"}")
             Text(text = "Diámetro máximo: ${asteroide.diametroMaxMetros.conUnidad("m")}")
             Text(text = "Velocidad: ${asteroide.velocidadKmH.conUnidad("km/h")}")
             Text(text = "Distancia: ${asteroide.distanciaKm.conUnidad("km")}")
         }
+    }
+}
+
+@Composable
+fun EtiquetaPeligroso() {
+    Surface(
+        color = MaterialTheme.colorScheme.errorContainer,
+        contentColor = MaterialTheme.colorScheme.onErrorContainer,
+        shape = MaterialTheme.shapes.small
+    ) {
+        Text(
+            text = "Potencialmente peligroso",
+            style = MaterialTheme.typography.labelMedium,
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
+        )
     }
 }
