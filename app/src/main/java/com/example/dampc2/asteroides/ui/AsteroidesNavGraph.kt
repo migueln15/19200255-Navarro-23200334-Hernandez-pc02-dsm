@@ -1,34 +1,57 @@
 package com.example.dampc2.asteroides.ui
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
+import androidx.compose.runtime.remember
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 
-/** Rutas de la opción Asteroides. La navegación interna (lista, detalle, favoritos) va aquí. */
+/** Rutas de la opción Asteroides. */
 object AsteroidesRoutes {
     const val GRAPH = "asteroides"
     const val LISTA = "asteroides/lista"
+    const val DETALLE = "asteroides/detalle/{id}"
+    const val FAVORITOS = "asteroides/favoritos"
+
+    fun detalle(id: String) = "asteroides/detalle/$id"
 }
 
 /** Grafo de navegación de la opción Asteroides. */
 fun NavGraphBuilder.asteroidesGraph(navController: NavHostController) {
     navigation(route = AsteroidesRoutes.GRAPH, startDestination = AsteroidesRoutes.LISTA) {
-        composable(AsteroidesRoutes.LISTA) {
-            AsteroidesPendiente()
+        composable(AsteroidesRoutes.LISTA) { entry ->
+            AsteroidesListaScreen(
+                viewModel = asteroidesViewModel(navController, entry),
+                onAsteroideClick = { id -> navController.navigate(AsteroidesRoutes.detalle(id)) },
+                onMisAsteroidesClick = { navController.navigate(AsteroidesRoutes.FAVORITOS) }
+            )
+        }
+        composable(AsteroidesRoutes.FAVORITOS) { entry ->
+            MisAsteroidesScreen(
+                viewModel = asteroidesViewModel(navController, entry),
+                onAsteroideClick = { id -> navController.navigate(AsteroidesRoutes.detalle(id)) },
+                onVolver = { navController.popBackStack() }
+            )
+        }
+        composable(AsteroidesRoutes.DETALLE) { entry ->
+            AsteroideDetalleScreen(
+                id = entry.arguments?.getString("id").orEmpty(),
+                viewModel = asteroidesViewModel(navController, entry),
+                onVolver = { navController.popBackStack() }
+            )
         }
     }
 }
 
+/** Un solo ViewModel compartido por todas las pantallas de la opción. */
 @Composable
-private fun AsteroidesPendiente() {
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text(text = "Asteroides")
-    }
+private fun asteroidesViewModel(
+    navController: NavHostController,
+    entry: NavBackStackEntry
+): AsteroidesViewModel {
+    val grafo = remember(entry) { navController.getBackStackEntry(AsteroidesRoutes.GRAPH) }
+    return viewModel(grafo, factory = AsteroidesViewModel.Factory)
 }
