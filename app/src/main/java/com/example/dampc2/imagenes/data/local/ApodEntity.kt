@@ -4,11 +4,16 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 /**
- * Tabla de la opción Imágenes (APOD).
- * Versión mínima creada en la base común: el responsable de la opción
- * agrega aquí el resto de columnas.
+ * Tabla local en Room para guardar las imágenes de APOD y su estado de favorito.
  */
 @Entity(tableName = "imagenes")
 data class ApodEntity(
-    @PrimaryKey val date: String
+    @PrimaryKey
+    val date: String,
+    val title: String,
+    val explanation: String,
+    val mediaType: String,
+    val hdurl: String,
+    val credit: String,
+    val isFavorite: Boolean = false
 )
