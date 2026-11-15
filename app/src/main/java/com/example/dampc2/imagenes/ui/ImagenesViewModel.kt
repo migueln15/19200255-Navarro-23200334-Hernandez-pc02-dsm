@@ -11,7 +11,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 /**
- * ViewModel encargado de gestionar el estado de la pantalla de Imágenes de APOD.
+ * ViewModel que expone el estado a la pantalla con StateFlow.
+ * Las pantallas leen siempre los datos provenientes de la base local Room.
  */
 class ImagenesViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -23,19 +24,37 @@ class ImagenesViewModel(application: Application) : AndroidViewModel(application
     init {
         val apodDao = AppDatabase.getInstance(application).apodDao()
         repository = ApodRepository(apodDao = apodDao)
+        observarYRefrescar()
+    }
+
+    private fun observarYRefrescar() {
+        // 1. Escuchar los datos directamente de la base local (Room)
+        viewModelScope.launch {
+            repository.imagenesFlow.collect { listaRoom ->
+                _uiState.value = ImagenesUiState.Success(listaRoom)
+            }
+        }
+
+        // 2. Cargar/Refrescar desde la API y guardar en Room
         cargarImagenes()
     }
 
     fun cargarImagenes() {
         viewModelScope.launch {
-            _uiState.value = ImagenesUiState.Loading
+            val actual = _uiState.value
+            if (actual !is ImagenesUiState.Success || actual.imagenes.isEmpty()) {
+                _uiState.value = ImagenesUiState.Loading
+            }
             try {
-                val imagenes = repository.fetchApodUltimos7Dias()
-                _uiState.value = ImagenesUiState.Success(imagenes)
+                repository.refrescarApodUltimos7Dias()
+                // Al guardarse en Room, repository.imagenesFlow emite la lista automáticamente a la UI.
             } catch (e: Exception) {
-                _uiState.value = ImagenesUiState.Error(
-                    e.localizedMessage ?: "Ocurrió un error al cargar las imágenes astronómicas."
-                )
+                val listaActual = (_uiState.value as? ImagenesUiState.Success)?.imagenes.orEmpty()
+                if (listaActual.isEmpty()) {
+                    _uiState.value = ImagenesUiState.Error(
+                        e.localizedMessage ?: "Ocurrió un error al consultar las imágenes de la NASA."
+                    )
+                }
             }
         }
     }

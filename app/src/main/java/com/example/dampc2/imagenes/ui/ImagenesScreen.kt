@@ -1,6 +1,7 @@
 package com.example.dampc2.imagenes.ui
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -21,6 +22,8 @@ import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.ImageNotSupported
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Videocam
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -45,6 +48,7 @@ import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
@@ -76,7 +80,10 @@ fun ImagenesScreen(viewModel: ImagenesViewModel) {
                     ) {
                         CircularProgressIndicator()
                         Spacer(modifier = Modifier.height(16.dp))
-                        Text(text = "Cargando imágenes de los últimos 7 días...")
+                        Text(
+                            text = "Consultando imágenes de los últimos 7 días...",
+                            style = MaterialTheme.typography.bodyLarge
+                        )
                     }
                 }
 
@@ -98,7 +105,8 @@ fun ImagenesScreen(viewModel: ImagenesViewModel) {
                         Text(
                             text = state.message,
                             style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.error
+                            color = MaterialTheme.colorScheme.error,
+                            textAlign = TextAlign.Center
                         )
                         Spacer(modifier = Modifier.height(16.dp))
                         Button(onClick = { viewModel.cargarImagenes() }) {
@@ -109,11 +117,29 @@ fun ImagenesScreen(viewModel: ImagenesViewModel) {
 
                 is ImagenesUiState.Success -> {
                     if (state.imagenes.isEmpty()) {
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(24.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
                         ) {
-                            Text("No se encontraron imágenes astronómicas.")
+                            Icon(
+                                imageVector = Icons.Default.Info,
+                                contentDescription = "Sin información",
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(48.dp)
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Text(
+                                text = "No hay imágenes disponibles para los últimos 7 días.",
+                                style = MaterialTheme.typography.bodyLarge,
+                                textAlign = TextAlign.Center
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Button(onClick = { viewModel.cargarImagenes() }) {
+                                Text("Actualizar")
+                            }
                         }
                     } else {
                         LazyColumn(
@@ -138,6 +164,7 @@ fun ImagenesScreen(viewModel: ImagenesViewModel) {
 @Composable
 fun ApodCard(apod: ApodEntity) {
     var expandido by remember { mutableStateOf(false) }
+    val esVideo = apod.mediaType.equals("video", ignoreCase = true)
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -145,8 +172,36 @@ fun ApodCard(apod: ApodEntity) {
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
     ) {
         Column {
-            // Imagen hdurl
-            if (apod.hdurl.isNotBlank()) {
+            if (esVideo) {
+                // Si media_type es "video", no se intenta cargar la imagen y se muestra "Contenido en video"
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(140.dp)
+                        .background(MaterialTheme.colorScheme.secondaryContainer),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Videocam,
+                            contentDescription = "Video",
+                            tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                            modifier = Modifier.size(32.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "Contenido en video",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSecondaryContainer
+                        )
+                    }
+                }
+            } else if (apod.hdurl.isNotBlank()) {
+                // Si es imagen, se carga con AsyncImage (Coil)
                 AsyncImage(
                     model = ImageRequest.Builder(LocalContext.current)
                         .data(apod.hdurl)

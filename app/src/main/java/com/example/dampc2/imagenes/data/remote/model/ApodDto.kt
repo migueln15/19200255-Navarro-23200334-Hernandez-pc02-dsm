@@ -1,20 +1,15 @@
 package com.example.dampc2.imagenes.data.remote.model
 
+import com.example.dampc2.imagenes.data.local.ApodEntity
 import com.google.gson.annotations.SerializedName
 
 /**
  * Modelo de transferencia de datos (DTO) devuelto por la API APOD de la NASA.
- * Campos según la especificación:
- * - date
- * - title
- * - explanation
- * - media_type
- * - hdurl
- * - credit
+ * Todos los campos son opcionales para evitar cierres ante datos incompletos.
  */
 data class ApodDto(
     @SerializedName("date")
-    val date: String,
+    val date: String? = null,
 
     @SerializedName("title")
     val title: String? = null,
@@ -31,3 +26,18 @@ data class ApodDto(
     @SerializedName("credit")
     val credit: String? = null
 )
+
+/**
+ * Conversión explícita de un objeto DTO (API) a una Entity de Room.
+ */
+fun ApodDto.toEntity(): ApodEntity? {
+    val validDate = date?.takeIf { it.isNotBlank() } ?: return null
+    return ApodEntity(
+        date = validDate,
+        title = title?.takeIf { it.isNotBlank() } ?: "Sin título",
+        explanation = explanation.orEmpty(),
+        mediaType = mediaType.orEmpty().ifBlank { "image" },
+        hdurl = hdurl.orEmpty(),
+        credit = credit.orEmpty()
+    )
+}

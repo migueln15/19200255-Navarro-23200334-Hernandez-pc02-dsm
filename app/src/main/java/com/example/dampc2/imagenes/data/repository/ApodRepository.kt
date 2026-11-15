@@ -4,11 +4,14 @@ import com.example.dampc2.data.remote.RetrofitClient
 import com.example.dampc2.imagenes.data.local.ApodDao
 import com.example.dampc2.imagenes.data.local.ApodEntity
 import com.example.dampc2.imagenes.data.remote.ApodApiService
+import com.example.dampc2.imagenes.data.remote.model.toEntity
+import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 /**
- * Repositorio para gestionar las imágenes de APOD (NASA).
+ * Repositorio que gestiona el acceso a la API (Retrofit) y la base local (Room).
+ * La pantalla lee siempre los datos desde Room (Fuente Única de Verdad).
  */
 class ApodRepository(
     private val apiService: ApodApiService = RetrofitClient.apod.create(ApodApiService::class.java),
@@ -16,10 +19,15 @@ class ApodRepository(
 ) {
 
     /**
-     * Consulta las imágenes de APOD de los últimos 7 días (desde hace 6 días hasta hoy),
-     * las guarda en la base de datos local y las devuelve ordenadas de la más reciente a la más antigua.
+     * Flujo reactivo continuo de imágenes leídas directamente de Room.
      */
-    suspend fun fetchApodUltimos7Dias(): List<ApodEntity> {
+    val imagenesFlow: Flow<List<ApodEntity>> = apodDao.getApodImagesFlow()
+
+    /**
+     * Consulta la API de la NASA para los últimos 7 días (desde hace 6 días hasta hoy),
+     * realiza la conversión explícita DTO -> Entity y almacena los datos en Room.
+     */
+    suspend fun refrescarApodUltimos7Dias() {
         val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
         val hoy = LocalDate.now()
         val hace6Dias = hoy.minusDays(6)
@@ -27,30 +35,12 @@ class ApodRepository(
         val endDate = hoy.format(formatter)
         val startDate = hace6Dias.format(formatter)
 
-        return try {
-            val dtoList = apiService.getApodImages(startDate = startDate, endDate = endDate)
-            val entities = dtoList.map { dto ->
-                ApodEntity(
-                    date = dto.date,
-                    title = dto.title ?: "Sin título",
-                    explanation = dto.explanation ?: "",
-                    mediaType = dto.mediaType ?: "image",
-                    hdurl = dto.hdurl ?: "",
-                    credit = dto.credit ?: ""
-                )
-            }.sortedByDescending { it.date }
+        val dtoList = apiService.getApodImages(startDate = startDate, endDate = endDate)
+        // Conversión explícita de DTO a Entity
+        val entities = dtoList.mapNotNull { it.toEntity() }
 
-            if (entities.isNotEmpty()) {
-                apodDao.insertApodImages(entities)
-            }
-            entities
-        } catch (e: Exception) {
-            val localCache = apodDao.getApodImages()
-            if (localCache.isNotEmpty()) {
-                localCache
-            } else {
-                throw e
-            }
+        if (entities.isNotEmpty()) {
+            apodDao.insertApodImages(entities)
         }
     }
 }
