@@ -26,7 +26,7 @@ object RetrofitClient {
     private val apiKeyInterceptor = Interceptor { chain ->
         val request = chain.request()
         val url = request.url.newBuilder()
-            .addQueryParameter("api_key", BuildConfig.NASA_API_KEY)
+            .addQueryParameter("api_key", BuildConfig.API_KEY)
             .build()
         chain.proceed(request.newBuilder().url(url).build())
     }

@@ -35,10 +35,10 @@ Aplicación Android (Kotlin + Jetpack Compose) que consume la API abierta de la 
 Cada integrante usa su propia clave de https://api.nasa.gov. Se agrega en `local.properties` (no se sube al repositorio):
 
 ```properties
-NASA_API_KEY=tu_clave
+API_KEY=tu_clave
 ```
 
-En el código se lee como `BuildConfig.NASA_API_KEY`.
+En el código se lee como `BuildConfig.API_KEY`.
 
 ## Requisitos
 
