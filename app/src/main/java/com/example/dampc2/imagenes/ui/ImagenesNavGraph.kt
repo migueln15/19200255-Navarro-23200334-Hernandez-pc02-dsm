@@ -1,11 +1,6 @@
 package com.example.dampc2.imagenes.ui
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
@@ -21,14 +16,8 @@ object ImagenesRoutes {
 fun NavGraphBuilder.imagenesGraph(navController: NavHostController) {
     navigation(route = ImagenesRoutes.GRAPH, startDestination = ImagenesRoutes.LISTA) {
         composable(ImagenesRoutes.LISTA) {
-            ImagenesPendiente()
+            val viewModel: ImagenesViewModel = viewModel()
+            ImagenesScreen(viewModel = viewModel)
         }
-    }
-}
-
-@Composable
-private fun ImagenesPendiente() {
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text(text = "Imágenes")
     }
 }
