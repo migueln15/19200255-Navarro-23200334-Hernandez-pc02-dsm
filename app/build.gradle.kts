@@ -1,7 +1,17 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.ksp)
 }
+
+// La API key de la NASA se lee de local.properties (no se sube al repositorio).
+val localProperties = Properties().apply {
+    val file = rootProject.file("local.properties")
+    if (file.exists()) file.inputStream().use { load(it) }
+}
+val apiKey: String = localProperties.getProperty("API_KEY", "")
 
 android {
     namespace = "com.example.dampc2"
@@ -17,6 +27,8 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField("String", "API_KEY", "\"$apiKey\"")
     }
 
     buildTypes {
@@ -32,6 +44,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
@@ -51,6 +64,15 @@ dependencies {
     implementation("io.coil-kt:coil-compose:2.7.0")
     //Material icons
     implementation("androidx.compose.material:material-icons-extended:1.7.8")
+    // ViewModel en Compose
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    // Retrofit + conversor Gson
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.converter.gson)
+    // Room
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler)
 
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))
