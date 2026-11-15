@@ -21,6 +21,7 @@ import java.time.LocalDate
 data class AsteroidesUiState(
     val cargando: Boolean = false,
     val asteroides: List<AsteroideEntity> = emptyList(),
+    val soloPeligrosos: Boolean = false,
     val error: String? = null
 )
 
@@ -32,18 +33,29 @@ class AsteroidesViewModel(private val repository: AsteroidesRepository) : ViewMo
 
     private val cargando = MutableStateFlow(false)
     private val error = MutableStateFlow<String?>(null)
+    private val soloPeligrosos = MutableStateFlow(false)
 
     /** La pantalla lee siempre desde Room. */
     val uiState: StateFlow<AsteroidesUiState> = combine(
         repository.observarAsteroides(desde.toString()),
         cargando,
-        error
-    ) { asteroides, cargando, error ->
-        AsteroidesUiState(cargando = cargando, asteroides = asteroides, error = error)
+        error,
+        soloPeligrosos
+    ) { asteroides, cargando, error, soloPeligrosos ->
+        AsteroidesUiState(
+            cargando = cargando,
+            asteroides = if (soloPeligrosos) asteroides.filter { it.esPeligroso } else asteroides,
+            soloPeligrosos = soloPeligrosos,
+            error = error
+        )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), AsteroidesUiState(cargando = true))
 
     init {
         actualizar()
+    }
+
+    fun cambiarFiltro(activo: Boolean) {
+        soloPeligrosos.value = activo
     }
 
     /** Consulta la API y guarda en Room. */
