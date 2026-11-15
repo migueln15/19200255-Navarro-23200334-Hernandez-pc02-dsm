@@ -20,6 +20,9 @@ fun AsteroideItem(asteroide: AsteroideEntity, modifier: Modifier = Modifier) {
             Text(text = asteroide.nombre, style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(8.dp))
             Text(text = "Fecha de aproximación: ${asteroide.fechaAproximacion ?: "Sin dato"}")
+            Text(text = "Diámetro máximo: ${asteroide.diametroMaxMetros.conUnidad("m")}")
+            Text(text = "Velocidad: ${asteroide.velocidadKmH.conUnidad("km/h")}")
+            Text(text = "Distancia: ${asteroide.distanciaKm.conUnidad("km")}")
         }
     }
 }
