@@ -11,7 +11,7 @@ val localProperties = Properties().apply {
     val file = rootProject.file("local.properties")
     if (file.exists()) file.inputStream().use { load(it) }
 }
-val nasaApiKey: String = localProperties.getProperty("NASA_API_KEY", "")
+val apiKey: String = localProperties.getProperty("API_KEY", "")
 
 android {
     namespace = "com.example.dampc2"
@@ -28,7 +28,7 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        buildConfigField("String", "NASA_API_KEY", "\"$nasaApiKey\"")
+        buildConfigField("String", "API_KEY", "\"$apiKey\"")
     }
 
     buildTypes {
