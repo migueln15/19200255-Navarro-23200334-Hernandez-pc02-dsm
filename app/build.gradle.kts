@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.ksp)
 }
 
 android {
@@ -51,6 +52,15 @@ dependencies {
     implementation("io.coil-kt:coil-compose:2.7.0")
     //Material icons
     implementation("androidx.compose.material:material-icons-extended:1.7.8")
+    // ViewModel en Compose
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    // Retrofit + conversor Gson
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.converter.gson)
+    // Room
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler)
 
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))
