@@ -23,6 +23,8 @@ import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.ImageNotSupported
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.StarBorder
 import androidx.compose.material.icons.filled.Videocam
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
@@ -35,6 +37,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -58,14 +61,20 @@ import com.example.dampc2.imagenes.data.local.ApodEntity
 @Composable
 fun ImagenesScreen(
     viewModel: ImagenesViewModel,
-    onApodClick: (ApodEntity) -> Unit = {}
+    onApodClick: (ApodEntity) -> Unit = {},
+    onMisFavoritosClick: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Imágenes de la NASA (APOD)") }
+                title = { Text("Imágenes (APOD)") },
+                actions = {
+                    TextButton(onClick = onMisFavoritosClick) {
+                        Text("Mis favoritas")
+                    }
+                }
             )
         }
     ) { innerPadding ->
@@ -156,7 +165,8 @@ fun ImagenesScreen(
                             ) { apod ->
                                 ApodCard(
                                     apod = apod,
-                                    onApodClick = onApodClick
+                                    onApodClick = onApodClick,
+                                    onFavoritoClick = { viewModel.cambiarFavorito(apod) }
                                 )
                             }
                         }
@@ -170,7 +180,8 @@ fun ImagenesScreen(
 @Composable
 fun ApodCard(
     apod: ApodEntity,
-    onApodClick: (ApodEntity) -> Unit = {}
+    onApodClick: (ApodEntity) -> Unit = {},
+    onFavoritoClick: () -> Unit = {}
 ) {
     var expandido by remember { mutableStateOf(false) }
     val esVideo = apod.mediaType.equals("video", ignoreCase = true)
@@ -233,14 +244,26 @@ fun ApodCard(
                     .fillMaxWidth()
                     .padding(16.dp)
             ) {
-                // Título
-                Text(
-                    text = apod.title,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
+                // Fila del Título y Botón de Favorito
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = apod.title,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.weight(1f)
+                    )
 
-                Spacer(modifier = Modifier.height(6.dp))
+                    BotonFavorito(
+                        esFavorito = apod.isFavorite,
+                        onClick = onFavoritoClick
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(4.dp))
 
                 // Fecha
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -299,5 +322,17 @@ fun ApodCard(
                 }
             }
         }
+    }
+}
+
+/** Botón estrella llena si es favorito, vacía si no. Mismo componente que en la opción Asteroides. */
+@Composable
+fun BotonFavorito(esFavorito: Boolean, onClick: () -> Unit) {
+    IconButton(onClick = onClick) {
+        Icon(
+            imageVector = if (esFavorito) Icons.Filled.Star else Icons.Filled.StarBorder,
+            contentDescription = if (esFavorito) "Quitar de favoritos" else "Marcar como favorito",
+            tint = if (esFavorito) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 }

@@ -8,8 +8,10 @@ import com.example.dampc2.imagenes.data.local.ApodEntity
 import com.example.dampc2.imagenes.data.repository.ApodRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 /**
@@ -18,14 +20,17 @@ import kotlinx.coroutines.launch
  */
 class ImagenesViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val repository: ApodRepository
+    private val repository: ApodRepository = ApodRepository(
+        apodDao = AppDatabase.getInstance(application).apodDao()
+    )
 
     private val _uiState = MutableStateFlow<ImagenesUiState>(ImagenesUiState.Loading)
     val uiState: StateFlow<ImagenesUiState> = _uiState.asStateFlow()
 
+    val favoritos: StateFlow<List<ApodEntity>> = repository.favoritosFlow
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+
     init {
-        val apodDao = AppDatabase.getInstance(application).apodDao()
-        repository = ApodRepository(apodDao = apodDao)
         observarYRefrescar()
     }
 
@@ -43,6 +48,12 @@ class ImagenesViewModel(application: Application) : AndroidViewModel(application
 
     fun getApodByDate(date: String): Flow<ApodEntity?> {
         return repository.getApodByDate(date)
+    }
+
+    fun cambiarFavorito(apod: ApodEntity) {
+        viewModelScope.launch {
+            repository.cambiarFavorito(apod)
+        }
     }
 
     fun cargarImagenes() {

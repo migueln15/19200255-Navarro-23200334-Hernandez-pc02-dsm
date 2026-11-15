@@ -42,7 +42,8 @@ import coil.request.ImageRequest
 
 /**
  * Pantalla de detalle de una Imagen de APOD.
- * Muestra la imagen en grande (hdurl), el título, la fecha, la explicación completa y el crédito.
+ * Muestra la imagen en grande (hdurl), el título, la fecha, la explicación completa, el crédito
+ * y el botón de estrella para marcar/desmarcar como favorito.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -62,6 +63,15 @@ fun ImagenesDetalleScreen(
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Volver"
+                        )
+                    }
+                },
+                actions = {
+                    val currentApod = apodState
+                    if (currentApod != null) {
+                        BotonFavorito(
+                            esFavorito = currentApod.isFavorite,
+                            onClick = { viewModel.cambiarFavorito(currentApod) }
                         )
                     }
                 }

@@ -4,7 +4,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 /**
- * Tabla local en Room para guardar las imágenes de APOD.
+ * Tabla local en Room para guardar las imágenes de APOD y su estado de favorito.
  */
 @Entity(tableName = "imagenes")
 data class ApodEntity(
@@ -14,5 +14,6 @@ data class ApodEntity(
     val explanation: String,
     val mediaType: String,
     val hdurl: String,
-    val credit: String
+    val credit: String,
+    val isFavorite: Boolean = false
 )
