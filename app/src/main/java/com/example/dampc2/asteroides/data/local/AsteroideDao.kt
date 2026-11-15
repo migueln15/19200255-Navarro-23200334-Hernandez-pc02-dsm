@@ -17,6 +17,15 @@ interface AsteroideDao {
     @Query("SELECT * FROM asteroides WHERE id = :id")
     fun observarPorId(id: String): Flow<AsteroideEntity?>
 
+    @Query("SELECT * FROM asteroides WHERE esFavorito = 1 ORDER BY fechaEpoch DESC")
+    fun observarFavoritos(): Flow<List<AsteroideEntity>>
+
+    @Query("UPDATE asteroides SET esFavorito = :esFavorito WHERE id = :id")
+    suspend fun actualizarFavorito(id: String, esFavorito: Boolean)
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertarTodos(asteroides: List<AsteroideEntity>)
+
+    @Query("SELECT id FROM asteroides WHERE esFavorito = 1")
+    suspend fun obtenerIdsFavoritos(): List<String>
 }

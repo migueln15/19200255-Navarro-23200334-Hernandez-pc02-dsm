@@ -40,6 +40,11 @@ fun AsteroideDetalleScreen(id: String, viewModel: AsteroidesViewModel, onVolver:
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver")
                     }
                 },
+                actions = {
+                    asteroide?.let { actual ->
+                        BotonFavorito(esFavorito = actual.esFavorito, onClick = { viewModel.cambiarFavorito(actual) })
+                    }
+                },
                 windowInsets = WindowInsets(0)
             )
         },

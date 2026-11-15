@@ -14,5 +14,6 @@ data class AsteroideEntity(
     val diametroMaxMetros: Double?,
     val velocidadKmH: Double?,
     val distanciaKm: Double?,
-    val esPeligroso: Boolean
+    val esPeligroso: Boolean,
+    val esFavorito: Boolean = false
 )

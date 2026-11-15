@@ -15,12 +15,19 @@ class AsteroidesRepository(
 
     fun observarAsteroide(id: String): Flow<AsteroideEntity?> = dao.observarPorId(id)
 
-    /** Consulta la API y guarda el resultado en Room. */
+    fun observarFavoritos(): Flow<List<AsteroideEntity>> = dao.observarFavoritos()
+
+    suspend fun cambiarFavorito(asteroide: AsteroideEntity) {
+        dao.actualizarFavorito(asteroide.id, !asteroide.esFavorito)
+    }
+
+    /** Consulta la API y guarda el resultado en Room, sin perder los favoritos. */
     suspend fun actualizar(desde: String, hasta: String) {
         val respuesta = api.obtenerFeed(desde, hasta)
+        val favoritos = dao.obtenerIdsFavoritos().toSet()
         val asteroides = respuesta.asteroidesPorFecha.orEmpty().values
             .flatMap { it.orEmpty() }
-            .mapNotNull { dto -> dto.toEntity() }
+            .mapNotNull { dto -> dto.toEntity(esFavorito = dto.id in favoritos) }
         dao.insertarTodos(asteroides)
     }
 }

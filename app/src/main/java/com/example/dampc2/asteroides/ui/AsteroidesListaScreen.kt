@@ -16,6 +16,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -24,23 +25,35 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.example.dampc2.asteroides.data.local.AsteroideEntity
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AsteroidesListaScreen(
     viewModel: AsteroidesViewModel,
-    onAsteroideClick: (String) -> Unit
+    onAsteroideClick: (String) -> Unit,
+    onMisAsteroidesClick: () -> Unit
 ) {
     val estado by viewModel.uiState.collectAsState()
 
     // La barra inferior ya aplica los márgenes del sistema, por eso WindowInsets(0).
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Asteroides") }, windowInsets = WindowInsets(0)) },
+        topBar = {
+            TopAppBar(
+                title = { Text("Asteroides") },
+                actions = { TextButton(onClick = onMisAsteroidesClick) { Text("Mis asteroides") } },
+                windowInsets = WindowInsets(0)
+            )
+        },
         contentWindowInsets = WindowInsets(0)
     ) { padding ->
         Column(modifier = Modifier.fillMaxSize().padding(padding)) {
             FiltroPeligrosos(activo = estado.soloPeligrosos, onCambio = viewModel::cambiarFiltro)
-            ContenidoLista(estado = estado, onAsteroideClick = onAsteroideClick)
+            ContenidoLista(
+                estado = estado,
+                onAsteroideClick = onAsteroideClick,
+                onFavoritoClick = viewModel::cambiarFavorito
+            )
         }
     }
 }
@@ -60,7 +73,8 @@ private fun FiltroPeligrosos(activo: Boolean, onCambio: (Boolean) -> Unit) {
 @Composable
 private fun ContenidoLista(
     estado: AsteroidesUiState,
-    onAsteroideClick: (String) -> Unit
+    onAsteroideClick: (String) -> Unit,
+    onFavoritoClick: (AsteroideEntity) -> Unit
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
         when {
@@ -77,7 +91,11 @@ private fun ContenidoLista(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 items(estado.asteroides, key = { it.id }) { asteroide ->
-                    AsteroideItem(asteroide = asteroide, onClick = { onAsteroideClick(asteroide.id) })
+                    AsteroideItem(
+                        asteroide = asteroide,
+                        onClick = { onAsteroideClick(asteroide.id) },
+                        onFavoritoClick = { onFavoritoClick(asteroide) }
+                    )
                 }
             }
         }

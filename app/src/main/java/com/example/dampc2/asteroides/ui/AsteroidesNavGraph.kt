@@ -14,6 +14,7 @@ object AsteroidesRoutes {
     const val GRAPH = "asteroides"
     const val LISTA = "asteroides/lista"
     const val DETALLE = "asteroides/detalle/{id}"
+    const val FAVORITOS = "asteroides/favoritos"
 
     fun detalle(id: String) = "asteroides/detalle/$id"
 }
@@ -24,7 +25,15 @@ fun NavGraphBuilder.asteroidesGraph(navController: NavHostController) {
         composable(AsteroidesRoutes.LISTA) { entry ->
             AsteroidesListaScreen(
                 viewModel = asteroidesViewModel(navController, entry),
-                onAsteroideClick = { id -> navController.navigate(AsteroidesRoutes.detalle(id)) }
+                onAsteroideClick = { id -> navController.navigate(AsteroidesRoutes.detalle(id)) },
+                onMisAsteroidesClick = { navController.navigate(AsteroidesRoutes.FAVORITOS) }
+            )
+        }
+        composable(AsteroidesRoutes.FAVORITOS) { entry ->
+            MisAsteroidesScreen(
+                viewModel = asteroidesViewModel(navController, entry),
+                onAsteroideClick = { id -> navController.navigate(AsteroidesRoutes.detalle(id)) },
+                onVolver = { navController.popBackStack() }
             )
         }
         composable(AsteroidesRoutes.DETALLE) { entry ->

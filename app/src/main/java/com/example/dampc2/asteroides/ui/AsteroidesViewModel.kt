@@ -51,11 +51,18 @@ class AsteroidesViewModel(private val repository: AsteroidesRepository) : ViewMo
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), AsteroidesUiState(cargando = true))
 
+    val favoritos: StateFlow<List<AsteroideEntity>> = repository.observarFavoritos()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+
     init {
         actualizar()
     }
 
     fun asteroide(id: String): Flow<AsteroideEntity?> = repository.observarAsteroide(id)
+
+    fun cambiarFavorito(asteroide: AsteroideEntity) {
+        viewModelScope.launch { repository.cambiarFavorito(asteroide) }
+    }
 
     fun cambiarFiltro(activo: Boolean) {
         soloPeligrosos.value = activo
