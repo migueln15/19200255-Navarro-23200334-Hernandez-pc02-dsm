@@ -14,6 +14,9 @@ interface AsteroideDao {
     @Query("SELECT * FROM asteroides WHERE fechaAproximacion >= :desde ORDER BY fechaEpoch DESC")
     fun observarDesde(desde: String): Flow<List<AsteroideEntity>>
 
+    @Query("SELECT * FROM asteroides WHERE id = :id")
+    fun observarPorId(id: String): Flow<AsteroideEntity?>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertarTodos(asteroides: List<AsteroideEntity>)
 }

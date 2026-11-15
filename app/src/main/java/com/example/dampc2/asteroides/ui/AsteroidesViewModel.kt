@@ -10,6 +10,7 @@ import com.example.dampc2.asteroides.data.remote.NeoWsApi
 import com.example.dampc2.asteroides.data.repository.AsteroidesRepository
 import com.example.dampc2.data.local.AppDatabase
 import com.example.dampc2.data.remote.RetrofitClient
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -53,6 +54,8 @@ class AsteroidesViewModel(private val repository: AsteroidesRepository) : ViewMo
     init {
         actualizar()
     }
+
+    fun asteroide(id: String): Flow<AsteroideEntity?> = repository.observarAsteroide(id)
 
     fun cambiarFiltro(activo: Boolean) {
         soloPeligrosos.value = activo

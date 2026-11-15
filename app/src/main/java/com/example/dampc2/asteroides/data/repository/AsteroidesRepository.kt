@@ -13,6 +13,8 @@ class AsteroidesRepository(
 
     fun observarAsteroides(desde: String): Flow<List<AsteroideEntity>> = dao.observarDesde(desde)
 
+    fun observarAsteroide(id: String): Flow<AsteroideEntity?> = dao.observarPorId(id)
+
     /** Consulta la API y guarda el resultado en Room. */
     suspend fun actualizar(desde: String, hasta: String) {
         val respuesta = api.obtenerFeed(desde, hasta)

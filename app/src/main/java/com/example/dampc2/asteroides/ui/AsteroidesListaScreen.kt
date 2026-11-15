@@ -27,7 +27,10 @@ import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AsteroidesListaScreen(viewModel: AsteroidesViewModel) {
+fun AsteroidesListaScreen(
+    viewModel: AsteroidesViewModel,
+    onAsteroideClick: (String) -> Unit
+) {
     val estado by viewModel.uiState.collectAsState()
 
     // La barra inferior ya aplica los márgenes del sistema, por eso WindowInsets(0).
@@ -37,7 +40,7 @@ fun AsteroidesListaScreen(viewModel: AsteroidesViewModel) {
     ) { padding ->
         Column(modifier = Modifier.fillMaxSize().padding(padding)) {
             FiltroPeligrosos(activo = estado.soloPeligrosos, onCambio = viewModel::cambiarFiltro)
-            ContenidoLista(estado = estado)
+            ContenidoLista(estado = estado, onAsteroideClick = onAsteroideClick)
         }
     }
 }
@@ -55,7 +58,10 @@ private fun FiltroPeligrosos(activo: Boolean, onCambio: (Boolean) -> Unit) {
 
 /** Indicador de carga, mensaje si no hay datos o la lista. */
 @Composable
-private fun ContenidoLista(estado: AsteroidesUiState) {
+private fun ContenidoLista(
+    estado: AsteroidesUiState,
+    onAsteroideClick: (String) -> Unit
+) {
     Box(modifier = Modifier.fillMaxSize()) {
         when {
             estado.cargando -> CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
@@ -71,7 +77,7 @@ private fun ContenidoLista(estado: AsteroidesUiState) {
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 items(estado.asteroides, key = { it.id }) { asteroide ->
-                    AsteroideItem(asteroide = asteroide)
+                    AsteroideItem(asteroide = asteroide, onClick = { onAsteroideClick(asteroide.id) })
                 }
             }
         }

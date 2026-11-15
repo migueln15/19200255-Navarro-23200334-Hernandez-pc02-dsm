@@ -1,5 +1,6 @@
 package com.example.dampc2.asteroides.ui
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,8 +16,12 @@ import androidx.compose.ui.unit.dp
 import com.example.dampc2.asteroides.data.local.AsteroideEntity
 
 @Composable
-fun AsteroideItem(asteroide: AsteroideEntity, modifier: Modifier = Modifier) {
-    Card(modifier = modifier.fillMaxWidth()) {
+fun AsteroideItem(
+    asteroide: AsteroideEntity,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Card(modifier = modifier.fillMaxWidth().clickable(onClick = onClick)) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(text = asteroide.nombre, style = MaterialTheme.typography.titleMedium)
             if (asteroide.esPeligroso) {
